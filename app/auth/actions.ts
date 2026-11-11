@@ -28,7 +28,15 @@ export async function login(_prev: AuthState, formData: FormData): Promise<AuthS
   if (error) return { error: toKorean(error.message) };
 
   revalidatePath("/", "layout");
-  redirect("/");
+  redirect(safeNext(formData.get("next")));
+}
+
+// 로그인 후 돌아갈 주소. 우리 사이트 안의 경로("/..."로 시작)만 허용
+// ("//evil.com" 같은 외부 주소로 보내는 공격을 막기 위해)
+function safeNext(value: FormDataEntryValue | null) {
+  const next = String(value ?? "");
+  const isInternal = next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/\\");
+  return isInternal ? next : "/";
 }
 
 export async function signup(_prev: AuthState, formData: FormData): Promise<AuthState> {

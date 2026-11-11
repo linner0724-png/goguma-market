@@ -10,9 +10,11 @@ const inputCls =
 export default function AuthForm({
   mode,
   initialError,
+  next,
 }: {
   mode: "login" | "signup";
   initialError?: string;
+  next?: string; // 로그인 후 돌아갈 주소
 }) {
   const isLogin = mode === "login";
   const [state, formAction, pending] = useActionState<AuthState, FormData>(
@@ -34,6 +36,7 @@ export default function AuthForm({
 
   return (
     <form action={formAction} className="flex flex-col gap-3">
+      {isLogin && next && <input type="hidden" name="next" value={next} />}
       {!isLogin && (
         <input name="nickname" placeholder="닉네임 (2~12자)" className={inputCls} required />
       )}

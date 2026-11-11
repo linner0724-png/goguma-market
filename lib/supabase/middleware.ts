@@ -28,8 +28,20 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // 이미 로그인한 사용자가 로그인/회원가입 페이지에 오면 홈으로
   const path = request.nextUrl.pathname;
+
+  // 로그인해야만 들어갈 수 있는 페이지: 판매글 쓰기(/products/new), 수정(/products/123/edit)
+  // → 로그인 페이지로 보내고, 로그인 후 돌아올 주소를 ?next= 로 넘김
+  const needsLogin = path === "/products/new" || /^\/products\/\d+\/edit$/.test(path);
+  if (!user && needsLogin) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.search = "";
+    url.searchParams.set("next", path);
+    return NextResponse.redirect(url);
+  }
+
+  // 이미 로그인한 사용자가 로그인/회원가입 페이지에 오면 홈으로
   if (user && (path === "/login" || path === "/signup")) {
     const url = request.nextUrl.clone();
     url.pathname = "/";

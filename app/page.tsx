@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { formatPrice, timeAgo } from "@/lib/format";
 import { imageUrl } from "@/lib/images";
 import AdPopup from "@/components/AdPopup";
+import SideBanners from "@/components/SideBanners";
 import { CATEGORIES, categoryLabel, isCategory } from "@/lib/categories";
 
 function CategoryChip({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
@@ -53,6 +54,7 @@ export default async function Home({
   return (
     <>
       <AdPopup />
+      <SideBanners />
 
       {/* 히어로 */}
       <section className="bg-brand-light">

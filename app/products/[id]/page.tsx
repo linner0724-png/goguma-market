@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice, timeAgo } from "@/lib/format";
+import { categoryLabel } from "@/lib/categories";
 import DeleteProductButton from "@/components/DeleteProductButton";
 import ImageGallery from "@/components/ImageGallery";
 import LikeButton from "@/components/LikeButton";
@@ -27,7 +28,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         // profiles!products_seller_id_fkey(nickname): seller_id 외래키로 판매자 닉네임을 함께 가져옴
         // (좋아요/댓글 테이블을 거쳐 profiles로 가는 길도 생겨서, 어느 외래키인지 꼭 적어줘야 함)
         .select(
-          "id, seller_id, title, price, region, description, images, created_at, profiles!products_seller_id_fkey(nickname)"
+          "id, seller_id, title, price, region, description, images, category, created_at, profiles!products_seller_id_fkey(nickname)"
         )
         .eq("id", id)
         .maybeSingle(),
@@ -86,7 +87,13 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       {/* 본문 */}
       <div className="border-b border-gray-100 py-6">
         <h1 className="text-xl font-bold">{product.title}</h1>
-        <p className="mt-1 text-sm text-gray-400">{timeAgo(product.created_at)}</p>
+        <p className="mt-1 text-sm text-gray-400">
+          <Link href={`/?category=${product.category}`} className="underline underline-offset-2 hover:text-gray-600">
+            {categoryLabel(product.category)}
+          </Link>
+          {" · "}
+          {timeAgo(product.created_at)}
+        </p>
         <p className="mt-3 text-lg font-bold">{formatPrice(product.price)}</p>
         <p className="mt-5 whitespace-pre-wrap leading-relaxed text-gray-800">
           {product.description || "설명이 없어요."}

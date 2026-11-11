@@ -4,6 +4,7 @@
 import { useActionState, useState } from "react";
 import type { ProductFormState } from "@/app/products/actions";
 import ImageUploader from "./ImageUploader";
+import { CATEGORIES } from "@/lib/categories";
 
 const inputCls =
   "h-12 w-full rounded-lg border border-gray-200 px-4 text-[15px] outline-none placeholder:text-gray-400 focus:border-brand";
@@ -14,6 +15,7 @@ type Initial = {
   region: string;
   description: string;
   images: string[];
+  category: string;
 };
 
 export default function ProductForm({
@@ -42,6 +44,25 @@ export default function ProductForm({
       <label className="flex flex-col gap-2">
         <span className="font-semibold">제목</span>
         <input name="title" defaultValue={initial?.title} placeholder="제목 (2~40자)" maxLength={40} className={inputCls} required />
+      </label>
+
+      <label className="flex flex-col gap-2">
+        <span className="font-semibold">카테고리</span>
+        <select
+          name="category"
+          defaultValue={initial?.category ?? ""}
+          required
+          className={`${inputCls} bg-white`}
+        >
+          <option value="" disabled>
+            카테고리를 선택해주세요
+          </option>
+          {CATEGORIES.map((c) => (
+            <option key={c.value} value={c.value}>
+              {c.label}
+            </option>
+          ))}
+        </select>
       </label>
 
       <div className="flex flex-col gap-2">

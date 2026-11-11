@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { IMAGE_BUCKET, MAX_IMAGES, isOwnImagePath } from "@/lib/images";
+import { isCategory } from "@/lib/categories";
 
 export type ProductFormState = { error?: string };
 
@@ -19,8 +20,10 @@ function readForm(formData: FormData, userId: string) {
   const priceText = String(formData.get("price") ?? "").replace(/[^0-9]/g, "");
   const price = isFree ? 0 : Number(priceText);
   const images = formData.getAll("images").map(String);
+  const category = String(formData.get("category") ?? "");
 
   if (title.length < 2 || title.length > 40) return { error: "제목은 2~40자로 입력해주세요." };
+  if (!isCategory(category)) return { error: "카테고리를 선택해주세요." };
   if (!region || region.length > 20) return { error: "거래 동네를 입력해주세요. (20자 이내)" };
   if (!isFree && (!priceText || price <= 0)) return { error: "가격을 입력하거나 '나눔'을 선택해주세요." };
   if (price > 100_000_000) return { error: "가격은 1억 원 이하로 입력해주세요." };
@@ -29,7 +32,7 @@ function readForm(formData: FormData, userId: string) {
   // 남의 사진 경로를 끼워넣지 못하게 본인 폴더 경로인지 확인
   if (!images.every((p) => isOwnImagePath(p, userId))) return { error: "사진 정보가 올바르지 않아요." };
 
-  return { data: { title, region, description, price, images } };
+  return { data: { title, region, description, price, images, category } };
 }
 
 export async function createProduct(

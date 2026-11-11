@@ -3,6 +3,21 @@ import { createClient } from "@/lib/supabase/server";
 import { formatPrice, timeAgo } from "@/lib/format";
 import { imageUrl } from "@/lib/images";
 import AdPopup from "@/components/AdPopup";
+import { CATEGORIES, categoryLabel, isCategory } from "@/lib/categories";
+
+function CategoryChip({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      scroll={false}
+      className={`flex h-9 shrink-0 items-center rounded-full border px-4 text-sm font-semibold transition ${
+        active ? "border-gray-900 bg-gray-900 text-white" : "border-gray-200 text-gray-700 hover:bg-gray-50"
+      }`}
+    >
+      {children}
+    </Link>
+  );
+}
 
 // 목록 카드 아래 좋아요/댓글 수 (0이면 숨김, 당근마켓처럼)
 function SocialCounts({ likes, comments }: { likes: number; comments: number }) {
@@ -15,15 +30,25 @@ function SocialCounts({ likes, comments }: { likes: number; comments: number }) 
   );
 }
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>;
+}) {
+  // 주소의 ?category=digital 값으로 필터 (없거나 이상한 값이면 전체)
+  const { category: rawCategory } = await searchParams;
+  const category = isCategory(rawCategory) ? rawCategory : null;
+
   // 최신 판매글 목록
   const supabase = await createClient();
-  const { data: products } = await supabase
+  let query = supabase
     .from("products")
     // product_likes(count): 연결된 좋아요 행 개수를 함께 가져옴
     .select("id, title, price, region, images, created_at, product_likes(count), product_comments(count)")
     .order("created_at", { ascending: false })
     .limit(40);
+  if (category) query = query.eq("category", category);
+  const { data: products } = await query;
 
   return (
     <>
@@ -57,9 +82,11 @@ export default async function Home() {
       </section>
 
       {/* 판매글 목록 */}
-      <section className="mx-auto max-w-6xl px-4 py-16">
-        <div className="mb-8 flex items-center justify-between">
-          <h2 className="text-2xl font-bold">중고거래 최신매물</h2>
+      <section id="list" className="mx-auto max-w-6xl scroll-mt-20 px-4 py-16">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-2xl font-bold">
+            {category ? `${categoryLabel(category)} 매물` : "중고거래 최신매물"}
+          </h2>
           <Link
             href="/products/new"
             className="flex h-10 items-center rounded-lg bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-dark"
@@ -68,9 +95,23 @@ export default async function Home() {
           </Link>
         </div>
 
+        {/* 카테고리 칩. 링크라서 새로고침/공유해도 같은 필터가 유지됨 (#list: 목록 위치로 스크롤) */}
+        <nav className="-mx-4 mb-8 flex gap-2 overflow-x-auto px-4 pb-1">
+          <CategoryChip href="/#list" active={!category}>
+            전체
+          </CategoryChip>
+          {CATEGORIES.map((c) => (
+            <CategoryChip key={c.value} href={`/?category=${c.value}#list`} active={category === c.value}>
+              {c.emoji} {c.label}
+            </CategoryChip>
+          ))}
+        </nav>
+
         {!products?.length ? (
           <p className="py-20 text-center text-gray-500">
-            아직 등록된 판매글이 없어요. 첫 판매글을 올려보세요!
+            {category
+              ? "이 카테고리에는 아직 판매글이 없어요."
+              : "아직 등록된 판매글이 없어요. 첫 판매글을 올려보세요!"}
           </p>
         ) : (
           <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-4">

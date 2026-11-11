@@ -15,7 +15,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
 
   const { data: product } = await supabase
     .from("products")
-    .select("id, seller_id, title, price, region, description, images")
+    .select("id, seller_id, title, price, region, description, images, category")
     .eq("id", id)
     .maybeSingle();
   if (!product) notFound();

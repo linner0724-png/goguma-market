@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice, timeAgo } from "@/lib/format";
 import { imageUrl } from "@/lib/images";
+import AdPopup from "@/components/AdPopup";
 
 export default async function Home() {
   // 최신 판매글 목록
@@ -14,6 +15,8 @@ export default async function Home() {
 
   return (
     <>
+      <AdPopup />
+
       {/* 히어로 */}
       <section className="bg-brand-light">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-10 px-4 py-20 md:flex-row md:py-28">

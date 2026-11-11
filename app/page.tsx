@@ -1,17 +1,16 @@
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { formatPrice, timeAgo } from "@/lib/format";
 
-const sampleItems = [
-  { emoji: "🚲", title: "접이식 자전거 팝니다", region: "역삼동", price: "80,000원" },
-  { emoji: "🪑", title: "원목 의자 2개 일괄", region: "서초동", price: "30,000원" },
-  { emoji: "🎧", title: "무선 헤드폰 거의 새것", region: "논현동", price: "120,000원" },
-  { emoji: "📚", title: "개발 서적 묶음 나눔", region: "삼성동", price: "나눔🧡" },
-  { emoji: "🪴", title: "몬스테라 화분", region: "대치동", price: "15,000원" },
-  { emoji: "🧸", title: "아기 장난감 세트", region: "도곡동", price: "10,000원" },
-  { emoji: "💻", title: "노트북 거치대", region: "개포동", price: "12,000원" },
-  { emoji: "🍳", title: "프라이팬 3종", region: "청담동", price: "20,000원" },
-];
+export default async function Home() {
+  // 최신 판매글 목록
+  const supabase = await createClient();
+  const { data: products } = await supabase
+    .from("products")
+    .select("id, title, price, region, created_at")
+    .order("created_at", { ascending: false })
+    .limit(40);
 
-export default function Home() {
   return (
     <>
       {/* 히어로 */}
@@ -41,21 +40,39 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 인기 매물 (샘플 - 다음 단계에서 DB 연결 예정) */}
+      {/* 판매글 목록 */}
       <section className="mx-auto max-w-6xl px-4 py-16">
-        <h2 className="mb-8 text-center text-2xl font-bold">중고거래 인기매물</h2>
-        <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-4">
-          {sampleItems.map((item) => (
-            <article key={item.title}>
-              <div className="flex aspect-square items-center justify-center rounded-xl bg-gray-100 text-6xl">
-                {item.emoji}
-              </div>
-              <h3 className="mt-3 truncate text-[15px]">{item.title}</h3>
-              <p className="mt-1 font-bold">{item.price}</p>
-              <p className="mt-1 text-sm text-gray-500">{item.region}</p>
-            </article>
-          ))}
+        <div className="mb-8 flex items-center justify-between">
+          <h2 className="text-2xl font-bold">중고거래 최신매물</h2>
+          <Link
+            href="/products/new"
+            className="flex h-10 items-center rounded-lg bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-dark"
+          >
+            + 판매하기
+          </Link>
         </div>
+
+        {!products?.length ? (
+          <p className="py-20 text-center text-gray-500">
+            아직 등록된 판매글이 없어요. 첫 판매글을 올려보세요!
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-4">
+            {products.map((item) => (
+              <Link key={item.id} href={`/products/${item.id}`} className="group">
+                {/* 사진 자리 (사진 기능은 다음 단계) */}
+                <div className="flex aspect-square items-center justify-center rounded-xl bg-gray-100 text-6xl transition group-hover:brightness-95">
+                  🍠
+                </div>
+                <h3 className="mt-3 truncate text-[15px] group-hover:underline">{item.title}</h3>
+                <p className="mt-1 font-bold">{formatPrice(item.price)}</p>
+                <p className="mt-1 text-sm text-gray-500">
+                  {item.region} · {timeAgo(item.created_at)}
+                </p>
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
     </>
   );

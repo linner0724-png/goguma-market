@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice, timeAgo } from "@/lib/format";
 import DeleteProductButton from "@/components/DeleteProductButton";
+import ImageGallery from "@/components/ImageGallery";
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const id = Number((await params).id);
@@ -13,7 +14,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     supabase
       .from("products")
       // profiles(nickname): seller_id 외래키로 판매자 닉네임을 함께 가져옴
-      .select("id, seller_id, title, price, region, description, created_at, profiles(nickname)")
+      .select("id, seller_id, title, price, region, description, images, created_at, profiles(nickname)")
       .eq("id", id)
       .maybeSingle(),
     supabase.auth.getUser(),
@@ -27,10 +28,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
   return (
     <article className="mx-auto max-w-2xl px-4 py-10">
-      {/* 사진 자리 (사진 기능은 다음 단계) */}
-      <div className="flex aspect-[4/3] items-center justify-center rounded-2xl bg-gray-100 text-8xl">
-        🍠
-      </div>
+      <ImageGallery paths={product.images ?? []} alt={product.title} />
 
       {/* 판매자 */}
       <div className="flex items-center gap-3 border-b border-gray-100 py-5">

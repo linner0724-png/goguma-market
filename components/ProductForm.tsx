@@ -1,28 +1,44 @@
 "use client";
-// 판매글 등록/수정 공용 폼 (사진 업로드는 다음 단계에서 추가)
+// 판매글 등록/수정 공용 폼
 
 import { useActionState, useState } from "react";
 import type { ProductFormState } from "@/app/products/actions";
+import ImageUploader from "./ImageUploader";
 
 const inputCls =
   "h-12 w-full rounded-lg border border-gray-200 px-4 text-[15px] outline-none placeholder:text-gray-400 focus:border-brand";
 
-type Initial = { title: string; price: number; region: string; description: string };
+type Initial = {
+  title: string;
+  price: number;
+  region: string;
+  description: string;
+  images: string[];
+};
 
 export default function ProductForm({
   action,
+  userId,
   initial,
   submitLabel,
 }: {
   action: (prev: ProductFormState, formData: FormData) => Promise<ProductFormState>;
+  userId: string;
   initial?: Initial;
   submitLabel: string;
 }) {
   const [state, formAction, pending] = useActionState(action, {});
   const [isFree, setIsFree] = useState(initial?.price === 0);
+  const [uploading, setUploading] = useState(false);
 
   return (
     <form action={formAction} className="flex flex-col gap-5">
+      <ImageUploader
+        userId={userId}
+        initialPaths={initial?.images}
+        onUploadingChange={setUploading}
+      />
+
       <label className="flex flex-col gap-2">
         <span className="font-semibold">제목</span>
         <input name="title" defaultValue={initial?.title} placeholder="제목 (2~40자)" maxLength={40} className={inputCls} required />
@@ -72,10 +88,10 @@ export default function ProductForm({
       {state.error && <p className="text-sm text-red-500">{state.error}</p>}
 
       <button
-        disabled={pending}
+        disabled={pending || uploading}
         className="h-12 rounded-lg bg-brand text-[15px] font-bold text-white hover:bg-brand-dark disabled:opacity-50"
       >
-        {pending ? "잠시만요..." : submitLabel}
+        {uploading ? "사진 올리는 중..." : pending ? "잠시만요..." : submitLabel}
       </button>
     </form>
   );

@@ -15,7 +15,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
 
   const { data: product } = await supabase
     .from("products")
-    .select("id, seller_id, title, price, region, description")
+    .select("id, seller_id, title, price, region, description, images")
     .eq("id", id)
     .maybeSingle();
   if (!product) notFound();
@@ -27,7 +27,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
   return (
     <div className="mx-auto max-w-xl px-4 py-12">
       <h1 className="mb-8 text-2xl font-bold">판매글 수정</h1>
-      <ProductForm action={action} initial={product} submitLabel="수정 완료" />
+      <ProductForm action={action} userId={user.id} initial={product} submitLabel="수정 완료" />
     </div>
   );
 }

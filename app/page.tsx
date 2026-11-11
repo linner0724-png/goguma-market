@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice, timeAgo } from "@/lib/format";
+import { imageUrl } from "@/lib/images";
 
 export default async function Home() {
   // 최신 판매글 목록
   const supabase = await createClient();
   const { data: products } = await supabase
     .from("products")
-    .select("id, title, price, region, created_at")
+    .select("id, title, price, region, images, created_at")
     .order("created_at", { ascending: false })
     .limit(40);
 
@@ -60,9 +61,14 @@ export default async function Home() {
           <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-4">
             {products.map((item) => (
               <Link key={item.id} href={`/products/${item.id}`} className="group">
-                {/* 사진 자리 (사진 기능은 다음 단계) */}
-                <div className="flex aspect-square items-center justify-center rounded-xl bg-gray-100 text-6xl transition group-hover:brightness-95">
-                  🍠
+                {/* 대표 사진(첫 번째). 사진이 없으면 고구마 그림 */}
+                <div className="flex aspect-square items-center justify-center overflow-hidden rounded-xl bg-gray-100 text-6xl transition group-hover:brightness-95">
+                  {item.images?.[0] ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={imageUrl(item.images[0])} alt={item.title} loading="lazy" className="h-full w-full object-cover" />
+                  ) : (
+                    "🍠"
+                  )}
                 </div>
                 <h3 className="mt-3 truncate text-[15px] group-hover:underline">{item.title}</h3>
                 <p className="mt-1 font-bold">{formatPrice(item.price)}</p>

@@ -13,7 +13,7 @@ export default async function NewProductPage() {
   return (
     <div className="mx-auto max-w-xl px-4 py-12">
       <h1 className="mb-8 text-2xl font-bold">내 물건 팔기</h1>
-      <ProductForm action={createProduct} submitLabel="작성 완료" />
+      <ProductForm action={createProduct} userId={user.id} submitLabel="작성 완료" />
     </div>
   );
 }

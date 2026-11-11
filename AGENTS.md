@@ -20,6 +20,7 @@ AI 에이전트(Claude Code 등)가 이 프로젝트에서 작업할 때 꼭 지
 | 1 | 회원가입 / 로그인 / 로그아웃 | 완료 |
 | 2 | 판매글 CRUD (사진 제외) | 완료 |
 | 3 | 판매글 사진 업로드 (최대 5장) | 완료 |
+| 4 | 좋아요 / 댓글 | 완료 |
 
 ## ⚠️ Supabase는 가계부와 같은 DB를 함께 씁니다
 
@@ -29,6 +30,9 @@ AI 에이전트(Claude Code 등)가 이 프로젝트에서 작업할 때 꼭 지
   - `public.profiles`: 회원 닉네임. `auth.users`와 1:1 관계이고, 가입 시 `handle_new_user` 트리거가 자동으로 만듭니다.
   - `public.products`: 판매글. `seller_id` → `profiles.id`. 조회는 누구나, 등록/수정/삭제는 본인만(RLS). 가격 0 = 나눔.
     - `images text[]`: Storage 경로 배열(최대 5장, 첫 번째가 대표 사진).
+  - `public.product_likes`: 좋아요. 기본키 `(product_id, user_id)`라 한 사람당 1번만. 본인 것만 추가/취소.
+  - `public.product_comments`: 댓글(1~500자). 본인 댓글만 작성/삭제.
+  - ⚠️ 위 두 테이블 때문에 `products`→`profiles` 경로가 여러 개라, 임베드할 때 `profiles!products_seller_id_fkey(nickname)`처럼 외래키를 꼭 명시하세요.
   - Storage 버킷 `product-images`(공개): 경로는 `{user id}/{uuid}.jpg`, 본인 폴더에만 업로드/삭제 가능(RLS). 브라우저에서 줄여서 직접 업로드하고, 서버 액션에는 경로만 보냅니다.
 - 새 테이블을 만들 때:
   - 가계부 테이블과 이름이 겹치지 않게 하세요.

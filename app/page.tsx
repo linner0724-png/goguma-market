@@ -4,12 +4,24 @@ import { formatPrice, timeAgo } from "@/lib/format";
 import { imageUrl } from "@/lib/images";
 import AdPopup from "@/components/AdPopup";
 
+// 목록 카드 아래 좋아요/댓글 수 (0이면 숨김, 당근마켓처럼)
+function SocialCounts({ likes, comments }: { likes: number; comments: number }) {
+  if (!likes && !comments) return null;
+  return (
+    <p className="mt-1 flex gap-2 text-xs text-gray-500">
+      {likes > 0 && <span>♡ {likes}</span>}
+      {comments > 0 && <span>💬 {comments}</span>}
+    </p>
+  );
+}
+
 export default async function Home() {
   // 최신 판매글 목록
   const supabase = await createClient();
   const { data: products } = await supabase
     .from("products")
-    .select("id, title, price, region, images, created_at")
+    // product_likes(count): 연결된 좋아요 행 개수를 함께 가져옴
+    .select("id, title, price, region, images, created_at, product_likes(count), product_comments(count)")
     .order("created_at", { ascending: false })
     .limit(40);
 
@@ -78,6 +90,10 @@ export default async function Home() {
                 <p className="mt-1 text-sm text-gray-500">
                   {item.region} · {timeAgo(item.created_at)}
                 </p>
+                <SocialCounts
+                  likes={item.product_likes?.[0]?.count ?? 0}
+                  comments={item.product_comments?.[0]?.count ?? 0}
+                />
               </Link>
             ))}
           </div>

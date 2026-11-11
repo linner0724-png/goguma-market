@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { logout } from "@/app/auth/actions";
+import NavLinks from "./NavLinks";
 
 export default async function Header() {
   const supabase = await createClient();
@@ -26,11 +27,7 @@ export default async function Header() {
           <span className="text-xl font-extrabold tracking-tight text-brand">고구마마켓</span>
         </Link>
 
-        <nav className="hidden gap-6 text-[15px] font-semibold text-gray-700 md:flex">
-          <Link href="/" className="hover:text-gray-400">중고거래</Link>
-          <span className="cursor-default text-gray-400">동네생활</span>
-          <span className="cursor-default text-gray-400">알바</span>
-        </nav>
+        <NavLinks className="hidden gap-6 text-[15px] font-semibold md:flex" />
 
         <div className="ml-auto hidden flex-1 md:block md:max-w-xs">
           <input
@@ -70,6 +67,9 @@ export default async function Header() {
           )}
         </div>
       </div>
+
+      {/* 모바일용 메뉴 줄 (넓은 화면에서는 위 로고 옆 메뉴를 사용) */}
+      <NavLinks className="flex h-11 items-center gap-6 border-t border-gray-100 px-4 text-[15px] font-semibold md:hidden" />
     </header>
   );
 }

@@ -38,7 +38,7 @@ export async function toggleLike(productId: number) {
   revalidatePath(`/products/${productId}`);
 }
 
-export type CommentState = { error?: string; ok?: number };
+type CommentState = { error?: string; ok?: number };
 
 export async function addComment(
   productId: number,

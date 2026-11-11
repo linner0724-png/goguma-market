@@ -30,9 +30,10 @@ export async function updateSession(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
 
-  // 로그인해야만 들어갈 수 있는 페이지: 판매글 쓰기(/products/new), 수정(/products/123/edit)
+  // 로그인해야만 들어갈 수 있는 페이지: 글쓰기(/products/new 등), 수정(/products/123/edit 등)
+  // 대상 게시판: 중고거래(products), 알바(jobs), 동네생활(community)
   // → 로그인 페이지로 보내고, 로그인 후 돌아올 주소를 ?next= 로 넘김
-  const needsLogin = path === "/products/new" || /^\/products\/\d+\/edit$/.test(path);
+  const needsLogin = /^\/(products|jobs|community)\/(new|\d+\/edit)$/.test(path);
   if (!user && needsLogin) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";

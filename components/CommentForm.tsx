@@ -1,14 +1,17 @@
 "use client";
-// 댓글 입력창
+// 댓글 입력창 (중고거래, 동네생활에서 같이 사용)
+// action: 글 id를 bind 해둔 "댓글 등록" 서버 액션
 
 import { useActionState, useEffect, useRef } from "react";
-import { addComment, type CommentState } from "@/app/products/[id]/actions";
 
-export default function CommentForm({ productId }: { productId: number }) {
-  const [state, formAction, pending] = useActionState<CommentState, FormData>(
-    addComment.bind(null, productId),
-    {}
-  );
+export type CommentState = { error?: string; ok?: number };
+
+export default function CommentForm({
+  action,
+}: {
+  action: (prev: CommentState, formData: FormData) => Promise<CommentState>;
+}) {
+  const [state, formAction, pending] = useActionState<CommentState, FormData>(action, {});
   const formRef = useRef<HTMLFormElement>(null);
 
   // 등록에 성공하면 입력칸 비우기

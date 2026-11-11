@@ -1,5 +1,12 @@
 // 화면 표시용 포맷 함수
 
+// 조인 결과(profiles)에서 닉네임 꺼내기
+// (DB 타입을 생성하지 않아서 TS는 배열로 추론하지만, 실제로는 객체 1개가 옴)
+export function nicknameOf(profiles: unknown) {
+  const p = (Array.isArray(profiles) ? profiles[0] : profiles) as { nickname?: string } | null;
+  return p?.nickname ?? "알 수 없음";
+}
+
 export function formatPrice(price: number) {
   return price === 0 ? "나눔🧡" : `${price.toLocaleString("ko-KR")}원`;
 }

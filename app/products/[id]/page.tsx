@@ -1,20 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { formatPrice, timeAgo } from "@/lib/format";
+import { formatPrice, nicknameOf, timeAgo } from "@/lib/format";
 import { categoryLabel } from "@/lib/categories";
 import DeleteProductButton from "@/components/DeleteProductButton";
 import ImageGallery from "@/components/ImageGallery";
 import LikeButton from "@/components/LikeButton";
 import CommentForm from "@/components/CommentForm";
-import { deleteComment } from "./actions";
-
-// 조인 결과가 객체 또는 배열로 올 수 있어서 닉네임 꺼내는 함수
-// (DB 타입을 생성하지 않아서 TS는 배열로 추론하지만, 실제로는 객체 1개가 옴)
-function nicknameOf(profiles: unknown) {
-  const p = (Array.isArray(profiles) ? profiles[0] : profiles) as { nickname?: string } | null;
-  return p?.nickname ?? "알 수 없음";
-}
+import { addComment, deleteComment } from "./actions";
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const id = Number((await params).id);
@@ -138,7 +131,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         </ul>
 
         {userId ? (
-          <CommentForm productId={product.id} />
+          <CommentForm action={addComment.bind(null, product.id)} />
         ) : (
           <Link
             href={`/login?next=/products/${product.id}`}

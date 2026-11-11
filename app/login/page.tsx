@@ -6,8 +6,8 @@ export default async function LoginPage({
   searchParams: Promise<{ error?: string; next?: string }>;
 }) {
   const { error, next } = await searchParams;
-  // 판매글 쓰기/수정 페이지에서 튕겨져 온 경우
-  const fromProducts = next?.startsWith("/products/");
+  // 글쓰기/수정 페이지에서 튕겨져 온 경우
+  const fromWrite = !!next && /\/(new|edit)$/.test(next);
 
   return (
     <div className="mx-auto max-w-sm px-4 py-16">
@@ -15,9 +15,9 @@ export default async function LoginPage({
       <p className="mb-8 mt-2 text-center text-sm text-gray-500">
         고구마마켓에 오신 걸 환영해요 🍠
       </p>
-      {fromProducts && (
+      {fromWrite && (
         <p className="mb-4 rounded-lg bg-brand-light px-4 py-3 text-center text-sm font-semibold text-brand-dark">
-          로그인 후 판매글을 올릴 수 있어요.
+          로그인 후 글을 쓸 수 있어요.
         </p>
       )}
       <AuthForm

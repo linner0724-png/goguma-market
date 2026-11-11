@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #ff6f0f;        /* 당근 오렌지 */
+  --color-brand-dark: #e85d00;
+  --color-brand-light: #fff1e8;
+  --font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+    "Malgun Gothic", sans-serif;
+}
+
+body {
+  color: #212124;
+  background: #fff;
+}
